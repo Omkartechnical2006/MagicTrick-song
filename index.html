@@ -36,6 +36,11 @@
                     <span class="btn-icon">🚀</span>
                 </button>
 
+                <button id="clearButton" class="clear-btn">
+                    <span class="btn-text">Clear Song</span>
+                    <span class="btn-icon">🗑️</span>
+                </button>
+
                 <div id="statusMessage" class="status-message hidden"></div>
             </div>
 
@@ -50,7 +55,7 @@
     <script type="module">
         // Import Firebase functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -77,6 +82,7 @@
         const accompliceView = document.getElementById('accompliceView');
         const youtubeLink = document.getElementById('youtubeLink');
         const sendButton = document.getElementById('sendButton');
+        const clearButton = document.getElementById('clearButton');
         const statusMessage = document.getElementById('statusMessage');
 
         // Show appropriate view
@@ -149,6 +155,29 @@
             youtubeLink.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     sendButton.click();
+                }
+            });
+
+            // Clear button handler
+            clearButton.addEventListener('click', async () => {
+                try {
+                    clearButton.disabled = true;
+                    clearButton.classList.add('loading');
+
+                    const linkRef = ref(database, 'currentLink');
+                    await remove(linkRef);
+
+                    showStatus('🗑️ Song cleared! Ready for next performance', 'success');
+
+                    setTimeout(() => {
+                        clearButton.disabled = false;
+                        clearButton.classList.remove('loading');
+                    }, 1000);
+
+                } catch (error) {
+                    showStatus('Error clearing song: ' + error.message, 'error');
+                    clearButton.disabled = false;
+                    clearButton.classList.remove('loading');
                 }
             });
         }
